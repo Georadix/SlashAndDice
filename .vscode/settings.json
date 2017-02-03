@@ -1,0 +1,16 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "editor.fontSize": 20,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "app/**/*.js":true,
+        "**/*.js.map":true,
+        "node_modules":true
+    },
+    "tslint.enable":true,
+    "tslint.autoFixOnSave": true,
+    "typescript.tsdk": "./node_modules/typescript/lib"
+}

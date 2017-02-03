@@ -1,0 +1,22 @@
+{
+  "name": "slash-and-dice",
+  "description": "D&D 5e game hosting",
+  "main": "",
+  "authors": [
+    "Dominic Alie <dominic@georadix.com>"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "leaflet": "^1.0.3",
+    "leaflet-simple-graticule": "*"
+  }
+}
