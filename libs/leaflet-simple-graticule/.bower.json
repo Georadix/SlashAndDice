@@ -1,0 +1,14 @@
+{
+  "name": "leaflet-simple-graticule",
+  "homepage": "https://github.com/ablakey/Leaflet.SimpleGraticule",
+  "_release": "d17827bcbe",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "d17827bcbe7dae0fe53d0273cbb6c3299a039eec"
+  },
+  "_source": "https://github.com/ablakey/Leaflet.SimpleGraticule.git",
+  "_target": "*",
+  "_originalSource": "leaflet-simple-graticule",
+  "_direct": true
+}

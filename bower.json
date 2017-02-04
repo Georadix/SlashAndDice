@@ -17,7 +17,6 @@
   ],
   "dependencies": {
     "leaflet": "^1.0.3",
-    "leaflet-simple-graticule": "*",
     "leaflet-path-drag": "https://raw.githubusercontent.com/Georadix/Leaflet.Path.Drag/master/dist/L.Path.Drag-src.js"
   }
 }
