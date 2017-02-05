@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GameStateService } from './game-state.service';
-import { Map } from './Map';
-import { Token } from './Token';
+import { MapPane } from './MapPane';
 
 @Component({
     providers: [GameStateService],
@@ -22,7 +21,6 @@ export class MapComponent implements OnInit{
     map: L.Map;
     backgroundPane: string = 'backgroundMaps';
     backgroundLayer: L.LayerGroup;
-    tokenPane: string = 'tokens';
     tokenLayer: L.LayerGroup;
 
     /**
@@ -36,13 +34,13 @@ export class MapComponent implements OnInit{
         this.map = L.map('map', {
             crs: L.CRS.Simple,
             minZoom: 4,
-            maxZoom: 6
+            maxZoom: 8
         });
 
-        this.map.createPane(this.backgroundPane);
-        this.map.getPane(this.backgroundPane).style.zIndex = '399';
-        this.map.createPane(this.tokenPane);
-        this.map.getPane(this.tokenPane).style.zIndex = '401';
+        this.map.createPane(MapPane.background.toString());
+        this.map.getPane(MapPane.background.toString()).style.zIndex = '399';
+        this.map.createPane(MapPane.token.toString());
+        this.map.getPane(MapPane.token.toString()).style.zIndex = '401';
 
         this.backgroundLayer = L.layerGroup([]);
         this.map.addLayer(this.backgroundLayer);
@@ -56,39 +54,12 @@ export class MapComponent implements OnInit{
 
         let mapState = this.gameStateService.getMap();
 
-        this.addBackgroundMap(mapState.map);
         this.addMapScale();
+        mapState.map.addToLayer(this.backgroundLayer);
+        this.map.fitBounds(mapState.map.getBounds());
         mapState.tokens.forEach((token) => {
-            this.addToken(token);
+            token.addToLayer(this.tokenLayer);
         });
-    }
-
-    private addToken(token: Token): void {
-        let tokenPoly = L.polygon(
-            [token.position,
-            L.latLng(token.position.lat + token.size, token.position.lng),
-            L.latLng(token.position.lat + token.size, token.position.lng + token.size),
-            L.latLng(token.position.lat, token.position.lng + token.size)], {
-            draggable: true,
-            fillOpacity: 0,
-            pane: this.tokenPane
-        });
-
-        let tokenOverlay = L.imageOverlay(token.imageUrl, tokenPoly.getBounds(), {
-            interactive: true,
-            pane: this.tokenPane
-        });
-
-        tokenOverlay.bringToFront();
-
-        tokenPoly.on('drag dragend', (e) => {
-            tokenOverlay.setBounds(tokenPoly.getBounds());
-            console.log(tokenPoly.getBounds().toBBoxString());
-        });
-
-        this.tokenLayer.addLayer(tokenPoly);
-        this.tokenLayer.addLayer(tokenOverlay);
-        tokenOverlay.bringToFront();
     }
 
     private addMapScale(): void {
@@ -107,17 +78,5 @@ export class MapComponent implements OnInit{
         }).addTo(this.map);
 
         L.control.mousePosition().addTo(this.map);
-    }
-
-    private addBackgroundMap(map: Map): void{
-        let bounds = L.latLngBounds([[0, 0], [map.imageWidth, map.imageHeight]]);
-        let image = L.imageOverlay(map.imageUrl, bounds, {
-            pane: this.backgroundPane
-        });
-
-        this.backgroundLayer.addLayer(image);
-        image.bringToBack();
-
-        this.map.fitBounds(bounds);
     }
 }
