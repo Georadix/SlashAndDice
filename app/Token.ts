@@ -38,7 +38,7 @@ export class Token {
      */
     constructor(imageUrl: string, position: L.LatLng, size: CreatureSize) {
         this.imageUrl = imageUrl;
-        this.position = position;
+        this.position = this.snapToGrid(position);
         this.size = size;
 
         this.outlineColor = '#f00';
@@ -46,7 +46,7 @@ export class Token {
     }
 
     public addToLayer(layer: L.LayerGroup): void {
-        if (this.tokenPoly){
+        if (this.tokenPoly) {
             this.tokenOverlay.remove();
         } else {
             this.tokenPoly = L.polygon(
@@ -59,7 +59,17 @@ export class Token {
                 pane: MapPane.token.toString()
             });
 
-            this.tokenPoly.on('drag dragend', (e) => {
+            this.tokenPoly.on('drag', (e) => {
+                this.tokenOverlay.setBounds(this.tokenPoly.getBounds());
+            });
+
+            this.tokenPoly.on('dragend', (e) => {
+                let sw = this.snapToGrid(this.tokenPoly.getBounds().getSouthWest());
+                this.tokenPoly.setLatLngs([sw,
+                L.latLng(sw.lat + this.size, sw.lng),
+                L.latLng(sw.lat + this.size, sw.lng + this.size),
+                L.latLng(sw.lat, sw.lng + this.size)]);
+                
                 this.tokenOverlay.setBounds(this.tokenPoly.getBounds());
             });
         }
@@ -75,5 +85,11 @@ export class Token {
 
         layer.addLayer(this.tokenPoly);
         layer.addLayer(this.tokenOverlay);
+    }
+
+    private snapToGrid(latLng: L.LatLng): L.LatLng{
+        let lat = Math.round(latLng.lat / 1.524) * 1.524;
+        let lng = Math.round(latLng.lng / 1.524) * 1.524;
+        return L.latLng(lat, lng);
     }
 }
