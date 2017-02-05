@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { GameStateService } from './game-state.service';
+import { Map } from './Map';
+import { Token } from './Token';
 
 @Component({
+    providers: [GameStateService],
     selector: 'slash-map',
     template: '<div id="map"></div>',
     styles: [`
@@ -9,9 +13,9 @@ import { Component, OnInit } from '@angular/core';
     }
 
     .leaflet-container {
-	  background: #000;
-	  outline: 0;
-	}
+        background: #000;
+        outline: 0;
+    }
   `]
 })
 export class MapComponent implements OnInit{
@@ -20,6 +24,13 @@ export class MapComponent implements OnInit{
     backgroundLayer: L.LayerGroup;
     tokenPane: string = 'tokens';
     tokenLayer: L.LayerGroup;
+
+    /**
+     * Initializes a new instance of {MapComponent}.
+     */
+    constructor(private gameStateService: GameStateService) {
+
+     }
 
     ngOnInit(): void {
         this.map = L.map('map', {
@@ -32,7 +43,7 @@ export class MapComponent implements OnInit{
         this.map.getPane(this.backgroundPane).style.zIndex = '399';
         this.map.createPane(this.tokenPane);
         this.map.getPane(this.tokenPane).style.zIndex = '401';
-        
+
         this.backgroundLayer = L.layerGroup([]);
         this.map.addLayer(this.backgroundLayer);
         this.backgroundLayer.setZIndex(0);
@@ -43,20 +54,27 @@ export class MapComponent implements OnInit{
 
         L.control.layers({'Map': this.backgroundLayer}, {'Tokens': this.tokenLayer}). addTo(this.map);
 
-        this.addBackgroundMap();
+        let mapState = this.gameStateService.getMap();
+
+        this.addBackgroundMap(mapState.map);
         this.addMapScale();
-        this.addToken();
+        mapState.tokens.forEach((token) => {
+            this.addToken(token);
+        });
     }
 
-    private addToken(): void {
-        let tokenPoly = L.polygon([L.latLng(0, 0), L.latLng(1.524, 0), L.latLng(1.524, 1.524), L.latLng(0, 1.524)], {
+    private addToken(token: Token): void {
+        let tokenPoly = L.polygon(
+            [token.position,
+            L.latLng(token.position.lat + token.size, token.position.lng),
+            L.latLng(token.position.lat + token.size, token.position.lng + token.size),
+            L.latLng(token.position.lat, token.position.lng + token.size)], {
             draggable: true,
             fillOpacity: 0,
             pane: this.tokenPane
         });
 
-        let tokenUrl = 'http://i.imgur.com/2okhBTl.png';
-        let tokenOverlay = L.imageOverlay(tokenUrl, tokenPoly.getBounds(), {
+        let tokenOverlay = L.imageOverlay(token.imageUrl, tokenPoly.getBounds(), {
             interactive: true,
             pane: this.tokenPane
         });
@@ -91,13 +109,12 @@ export class MapComponent implements OnInit{
         L.control.mousePosition().addTo(this.map);
     }
 
-    private addBackgroundMap(): void{
-        // TODO: Load dynamic image and calculate size and scale.
-        let bounds = L.latLngBounds([[0, 0], [45.72, 45.72]]);
-        let image = L.imageOverlay('http://imgur.com/KHt68Bj.png', bounds, {
+    private addBackgroundMap(map: Map): void{
+        let bounds = L.latLngBounds([[0, 0], [map.imageWidth, map.imageHeight]]);
+        let image = L.imageOverlay(map.imageUrl, bounds, {
             pane: this.backgroundPane
         });
-        
+
         this.backgroundLayer.addLayer(image);
         image.bringToBack();
 
