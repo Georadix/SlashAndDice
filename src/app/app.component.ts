@@ -2,9 +2,13 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  template: '<slash-map></slash-map>',
+  styles: [`
+    :host {
+      height: 100%;
+    }
+    
+  `]
 })
 export class AppComponent {
-  title = 'app works!';
 }
