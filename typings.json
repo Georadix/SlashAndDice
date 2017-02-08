@@ -1,6 +1,0 @@
-{
-  "globalDependencies": {
-    "geojson": "registry:dt/geojson#1.0.0+20170130182553",
-    "leaflet": "registry:dt/leaflet#1.0.0+20170130212419"
-  }
-}

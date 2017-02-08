@@ -6,7 +6,6 @@
 L.SimpleGraticule = L.LayerGroup.extend({
     options: {
         interval: 20,
-        showOriginLabel: true,
         redraw: 'move',
         hidden: false,
         zoomIntervals : []
@@ -67,10 +66,6 @@ L.SimpleGraticule = L.LayerGroup.extend({
             }
 
             this.constructLines(this.getMins(), this.getLineCounts());
-
-            if (this.options.showOriginLabel) {
-                this.addLayer(this.addOriginLabel());
-            }
         }
 
         return this;
@@ -96,24 +91,20 @@ L.SimpleGraticule = L.LayerGroup.extend({
 
     constructLines: function(mins, counts) {
         var lines = new Array(counts.x + counts.y);
-        var labels = new Array(counts.x + counts.y);
-
+        
         //for horizontal lines
         for (var i = 0; i <= counts.x; i++) {
             var x = mins.x + i * this.options.interval;
             lines[i] = this.buildXLine(x);
-            labels[i] = this.buildLabel('gridlabel-horiz', x);
         }
 
         //for vertical lines
         for (var j = 0; j <= counts.y; j++) {
             var y = mins.y + j * this.options.interval;
             lines[j + i] = this.buildYLine(y);
-            labels[j + i] = this.buildLabel('gridlabel-vert', y);
         }
 
         lines.forEach(this.addLayer, this);
-        labels.forEach(this.addLayer, this);
     },
 
     buildXLine: function(x) {
@@ -128,38 +119,6 @@ L.SimpleGraticule = L.LayerGroup.extend({
         var rightLL = new L.LatLng(y, this._bounds.getEast());
 
         return new L.Polyline([leftLL, rightLL], this.lineStyle);
-    },
-
-    buildLabel: function(axis, val) {
-        var bounds = this._map.getBounds().pad(-0.003);
-        var latLng;
-        if (axis == 'gridlabel-horiz') {
-            latLng = new L.LatLng(bounds.getNorth(), val);
-        } else {
-            latLng = new L.LatLng(val, bounds.getWest());
-        }
-
-        return L.marker(latLng, {
-            interactive: false,
-            clickable: false, //legacy support
-            icon: L.divIcon({
-                iconSize: [0, 0],
-                className: 'leaflet-grid-label',
-                html: '<div class="' + axis + '">' + val + '</div>'
-            })
-        });
-    },
-
-    addOriginLabel: function() {
-        return L.marker([0, 0], {
-            interactive: false,
-            clickable: false, //legacy support
-            icon: L.divIcon({
-                iconSize: [0, 0],
-                className: 'leaflet-grid-label',
-                html: '<div class="gridlabel-horiz">(0,0)</div>'
-            })
-        });
     }
 });
 

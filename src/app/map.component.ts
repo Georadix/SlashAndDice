@@ -75,7 +75,5 @@ export class MapComponent implements OnInit{
             metric: false,
 
         }).addTo(this.map);
-
-        L.control.mousePosition().addTo(this.map);
     }
 }

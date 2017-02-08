@@ -4,4 +4,8 @@ declare module L {
     }
 
     export function simpleGraticule(options:any):any;
+
+    export namespace control {
+        export function mousePosition(options?: any): Control;
+    }
 }
