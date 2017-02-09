@@ -5,11 +5,22 @@ import { MapPane } from './MapPane';
 @Component({
     providers: [GameStateService],
     selector: 'slash-map',
-    template: '<div id="map"></div>',
+    template: '<div id="map"></div><fog-of-war></fog-of-war>',
     styles: [`
-    :host, #map {
+    :host, #map, #fow {
       height: 100%;
     }
+
+    #fow {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 800;
+        pointer-events: none;
+    }
+
     .leaflet-container {
         background: #000;
         outline: 0;
@@ -18,7 +29,7 @@ import { MapPane } from './MapPane';
 })
 export class MapComponent implements OnInit{
     map: L.Map;
-    backgroundPane: string = 'backgroundMaps';
+    backgroundPane = 'backgroundMaps';
     backgroundLayer: L.LayerGroup;
     tokenLayer: L.LayerGroup;
 
@@ -53,15 +64,6 @@ export class MapComponent implements OnInit{
 
         let mapState = this.gameStateService.getMap();
 
-        this.addMapScale();
-        mapState.map.addToLayer(this.backgroundLayer);
-        this.map.fitBounds(mapState.map.getBounds());
-        mapState.tokens.forEach((token) => {
-            token.addToLayer(this.tokenLayer);
-        });
-    }
-
-    private addMapScale(): void {
         let options = {
             interval: 1.524,
             showOriginLabel: false,
@@ -75,5 +77,11 @@ export class MapComponent implements OnInit{
             metric: false,
 
         }).addTo(this.map);
+
+        mapState.map.addToLayer(this.backgroundLayer);
+        this.map.fitBounds(mapState.map.getBounds());
+        mapState.tokens.forEach((token) => {
+            token.addToLayer(this.tokenLayer);
+        });
     }
 }

@@ -5,11 +5,13 @@ import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
 import { MapComponent } from './map.component';
+import { FogOfWarComponent } from './fog-of-war.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MapComponent
+    MapComponent,
+    FogOfWarComponent
   ],
   imports: [
     BrowserModule,
