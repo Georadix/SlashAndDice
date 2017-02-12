@@ -12,6 +12,8 @@ export class FogOfWarService {
     private zoomLevel: number;
     private canvasWidth: number;
     private canvasHeight: number;
+    private outCanvas: HTMLCanvasElement;
+    private chroma: ChromaGL;
 
     /**
      * Gets the Threejs renderer.
@@ -32,6 +34,13 @@ export class FogOfWarService {
     public setMap(map: L.Map): void {
         this.map = map;
         this.zoomLevel = this.map.getZoom();
+
+        this.outCanvas = <any>$('canvas', '#canvas')[0];
+
+        let parent = $('#canvas');
+
+        this.canvasWidth = parent.outerWidth();
+        this.canvasHeight = parent.outerHeight();
 
         if (!this.renderer) {
             this.init();
@@ -62,7 +71,7 @@ export class FogOfWarService {
         let viewportOffsetY = point3.y - this.canvasHeight;
 
         this.renderer.setViewport(viewportOffsetX, -viewportOffsetY, size.x, Math.abs(size.y));
-        this.renderer.render(this.scene, this.camera);
+        this.render();
     }
 
     /**
@@ -70,8 +79,12 @@ export class FogOfWarService {
      */
     public setSize(): void {
         let parent = $('#canvas');
+
         this.canvasWidth = parent.outerWidth();
         this.canvasHeight = parent.outerHeight();
+
+        this.outCanvas.width = this.canvasWidth;
+        this.outCanvas.height = this.canvasHeight;
         this.renderer.setSize( this.canvasWidth, this.canvasHeight );
     }
 
@@ -88,7 +101,7 @@ export class FogOfWarService {
         this.scene.add( mesh );
 
         let pos = 45.72 / 2;
-        let light = new THREE.PointLight( 0xffffff, 1, 100, 1 );
+        let light = new THREE.PointLight( 0xffffff, 100, 10, 10 );
         light.position.set(pos, pos, 1.524);
 
         this.scene.add( light );
@@ -98,10 +111,37 @@ export class FogOfWarService {
         });
 
         this.renderer.setSize( 300, 300 );
-        this.renderer.render(this.scene, this.camera);
+        // this.chroma = new ChromaGL(this.renderer.domElement, this.outCanvas);
+        // this.chroma.addChromaKey('green', 0);
+        this.render();
     }
 
     private render(): void {
         this.renderer.render(this.scene, this.camera);
+
+        this.addChromaKey();
+
+
+    }
+
+    private addChromaKey(): void {
+        let ctx = this.outCanvas.getContext('2d');
+        ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        ctx.drawImage(this.renderer.domElement, 0, 0, this.canvasWidth, this.canvasHeight);
+        let imgData = ctx.getImageData(0, 0, this.canvasWidth, this.canvasHeight);
+
+        let l = imgData.data.length / 4;
+
+        for (let i = 0; i < l; i++) {
+            let r = imgData.data[i * 4 + 0];
+            let g = imgData.data[i * 4 + 1];
+            let b = imgData.data[i * 4 + 2];
+
+            imgData.data[i * 4 + 3] = 255 - r;
+        }
+
+
+        ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        ctx.putImageData(imgData, 0, 0);
     }
 }

@@ -4,7 +4,7 @@ import { FogOfWarService } from './fog-of-war.service';
 
 @Component({
     selector: 'fog-of-war',
-    template: '<div id="canvas"></div>',
+    template: '<div id="canvas"><canvas></canvas></div>',
     styles: [`
     :host {
         height: 100%;
@@ -34,8 +34,8 @@ export class FogOfWarComponent implements OnInit{
      }
 
     ngOnInit(): void {
-        this.fogOfWarService.getRenderer().then((renderer) => {
+        /*this.fogOfWarService.getRenderer().then((renderer) => {
             $('#canvas', this.element.nativeElement).append(renderer.domElement);
-        });
+        });*/
     }
 }

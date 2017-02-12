@@ -19,7 +19,7 @@ export class GameStateService {
         let mapState = new MapState();
         mapState.map = map;
         mapState.tokens.push(
-            new Token(tUrl, L.latLng(0, 0), CreatureSize.Medium),
+            new Token(tUrl, L.latLng(45.72 / 2, 45.72 / 2), CreatureSize.Medium),
             // new Token(tUrl, L.latLng(45.72, 45.72), CreatureSize.Medium)
         );
 
