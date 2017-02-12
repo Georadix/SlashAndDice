@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { GameStateService } from './game-state.service';
 import { MapPane } from './MapPane';
+import { FogOfWarService } from './fog-of-war.service';
 
 @Component({
-    providers: [GameStateService],
     selector: 'slash-map',
     template: '<div id="map"></div><fog-of-war></fog-of-war>',
     styles: [`
@@ -36,7 +36,8 @@ export class MapComponent implements OnInit{
     /**
      * Initializes a new instance of {MapComponent}.
      */
-    constructor(private gameStateService: GameStateService) {
+    constructor(private gameStateService: GameStateService,
+        private fogOfWarService: FogOfWarService) {
 
      }
 
@@ -44,7 +45,15 @@ export class MapComponent implements OnInit{
         this.map = L.map('map', {
             crs: L.CRS.Simple,
             minZoom: 4,
-            maxZoom: 8
+            maxZoom: 8,
+            bounceAtZoomLimits: false,
+            fadeAnimation: false,
+            inertia: false,
+            zoomAnimation: false
+        });
+
+        this.map.whenReady(() => {
+            this.fogOfWarService.setMap(this.map);
         });
 
         this.map.createPane(MapPane.background.toString());

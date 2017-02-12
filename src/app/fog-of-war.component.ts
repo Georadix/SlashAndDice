@@ -1,10 +1,10 @@
 import { Component, OnInit, ElementRef } from '@angular/core';
 import { GameStateService } from './game-state.service';
+import { FogOfWarService } from './fog-of-war.service';
 
 @Component({
-    providers: [GameStateService],
     selector: 'fog-of-war',
-    template: '',
+    template: '<div id="canvas"></div>',
     styles: [`
     :host {
         height: 100%;
@@ -15,42 +15,27 @@ import { GameStateService } from './game-state.service';
         right: 0;
         z-index: 800;
         pointer-events: none;
+        overflow:hidden;
+    }
+
+    #canvas {
+        height:100%;
     }
   `]
 })
 export class FogOfWarComponent implements OnInit{
-    private scene: THREE.Scene;
-    private camera: THREE.OrthographicCamera;
-    private renderer: THREE.WebGLRenderer;
-
     /**
      * Initializes a new instance of {MapComponent}.
      */
-    constructor(private element: ElementRef, private gameStateService: GameStateService) {
+    constructor(private element: ElementRef,
+        private gameStateService: GameStateService,
+        private fogOfWarService: FogOfWarService) {
 
      }
 
     ngOnInit(): void {
-        this.scene = new THREE.Scene();
-
-        this.camera = new THREE.OrthographicCamera(0, 45.72, 0, 45.72);
-        this.camera.position.z = 1000;
-
-        var geometry = new THREE.BoxGeometry( 10, 10, 10 );
-        var material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
-        
-        var mesh = new THREE.Mesh( geometry, material );
-        mesh.position.set(23, 23, 0);
-        this.scene.add( mesh );
-
-        this.renderer = new THREE.WebGLRenderer({
-            alpha: true
+        this.fogOfWarService.getRenderer().then((renderer) => {
+            $('#canvas', this.element.nativeElement).append(renderer.domElement);
         });
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-
-        this.element.nativeElement.appendChild( this.renderer.domElement );
-
-        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-        this.renderer.render(this.scene, this.camera);
     }
 }
