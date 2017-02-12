@@ -46,9 +46,6 @@ export class MapComponent implements OnInit{
             crs: L.CRS.Simple,
             minZoom: 4,
             maxZoom: 8,
-            bounceAtZoomLimits: false,
-            fadeAnimation: false,
-            inertia: false,
             zoomAnimation: false
         });
 

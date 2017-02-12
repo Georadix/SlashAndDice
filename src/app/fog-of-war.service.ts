@@ -7,7 +7,7 @@ import { Injectable } from '@angular/core';
 export class FogOfWarService {
     private map: L.Map;
     private scene: THREE.Scene;
-    private camera: THREE.OrthographicCamera;
+    private camera: THREE.PerspectiveCamera;
     private renderer: THREE.WebGLRenderer;
     private zoomLevel: number;
     private canvasWidth: number;
@@ -43,6 +43,7 @@ export class FogOfWarService {
 
 
         this.setSize();
+        this.setViewPort();
         window.addEventListener('resize', () => {
             this.setSize();
         });
@@ -76,18 +77,22 @@ export class FogOfWarService {
 
     private init(): void {
         this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(25, 1, 0.1, 1000);
+        // this.camera = new THREE.OrthographicCamera(0, 45.72, 0, 45.72, -1000, 1000);
+        this.camera.position.set(45.72 / 2, 45.72 / 2, 100);
 
-        this.camera = new THREE.OrthographicCamera(0, 45.72, 0, 45.72);
-        this.camera.position.z = 1000;
-
-        let geometry = new THREE.BoxGeometry( 3.048, 3.048, 3.048 );
-        let material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+        let geometry = new THREE.BoxGeometry(45.72, 45.72, 1);
+        let material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } );
         let mesh = new THREE.Mesh( geometry, material );
-        mesh.position.set(3.048, 3.048, 0);
+        mesh.position.set(45.72 / 2, 45.72 / 2, 0);
         this.scene.add( mesh );
 
-        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+        let pos = 45.72 / 2;
+        let light = new THREE.PointLight( 0xffffff, 1, 100, 1 );
+        light.position.set(pos, pos, 1.524);
 
+        this.scene.add( light );
+        this.scene.background = new THREE.Color(0xffffff);
         this.renderer = new THREE.WebGLRenderer({
             alpha: true
         });
