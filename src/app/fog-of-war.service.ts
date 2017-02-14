@@ -7,13 +7,12 @@ import { Injectable } from '@angular/core';
 export class FogOfWarService {
     private map: L.Map;
     private scene: THREE.Scene;
-    private camera: THREE.PerspectiveCamera;
+    private camera: THREE.OrthographicCamera;
     private renderer: THREE.WebGLRenderer;
     private zoomLevel: number;
     private canvasWidth: number;
     private canvasHeight: number;
     private outCanvas: HTMLCanvasElement;
-    private chroma: ChromaGL;
 
     /**
      * Gets the Threejs renderer.
@@ -89,30 +88,51 @@ export class FogOfWarService {
     }
 
     private init(): void {
+        let size = 45.72;
+        let center = 45.72 / 2;
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(25, 1, 0.1, 1000);
-        // this.camera = new THREE.OrthographicCamera(0, 45.72, 0, 45.72, -1000, 1000);
-        this.camera.position.set(45.72 / 2, 45.72 / 2, 100);
+        this.camera = new THREE.OrthographicCamera(0, size, size, 0, -1000, 1000);
+        this.camera.position.set(center, 100, center);
+        this.camera.lookAt(new THREE.Vector3(center, 0, center));
 
-        let geometry = new THREE.BoxGeometry(45.72, 45.72, 1);
+        // Add floor
+        let geometry = new THREE.BoxGeometry(45.72, 1, 45.72);
         let material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } );
         let mesh = new THREE.Mesh( geometry, material );
-        mesh.position.set(45.72 / 2, 45.72 / 2, 0);
+        mesh.position.set(0, 0, 0);
+        mesh.receiveShadow = true;
         this.scene.add( mesh );
 
-        let pos = 45.72 / 2;
-        let light = new THREE.PointLight( 0xffffff, 100, 10, 10 );
-        light.position.set(pos, pos, 1.524);
+        // Add wall
+        let wallGeo = new THREE.BoxGeometry(30, 100, 0.01);
+        let wallMesh = new THREE.Mesh(wallGeo, material);
+        wallMesh.castShadow = true;
+        wallMesh.position.set( 0, 0, 16);
+        this.scene.add(wallMesh);
 
+        // Add light
+        let light = new THREE.SpotLight( 0xffffff, 36 );
+        light.decay = 7;
+        light.distance = 100;
+        light.penumbra = 0.5;
+        light.position.set(0, 36, 0);
+        light.target.position.set(0, 0, 0);
+        light.angle = Math.PI / 4;
+        light.castShadow = true;
+        light.shadow.mapSize.width = 1024;
+        light.shadow.mapSize.height = 1024;
         this.scene.add( light );
+        this.scene.add(light.target);
         this.scene.background = new THREE.Color(0xffffff);
         this.renderer = new THREE.WebGLRenderer({
             alpha: true
         });
 
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.gammaInput = true;
+        this.renderer.gammaOutput = true;
         this.renderer.setSize( 300, 300 );
-        // this.chroma = new ChromaGL(this.renderer.domElement, this.outCanvas);
-        // this.chroma.addChromaKey('green', 0);
         this.render();
     }
 
