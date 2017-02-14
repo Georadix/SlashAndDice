@@ -91,32 +91,40 @@ export class FogOfWarService {
         let size = 45.72;
         let center = 45.72 / 2;
         this.scene = new THREE.Scene();
-        this.camera = new THREE.OrthographicCamera(0, size, size, 0, -1000, 1000);
-        this.camera.position.set(center, 100, center);
-        this.camera.lookAt(new THREE.Vector3(center, 0, center));
+        this.camera = new THREE.OrthographicCamera(size / -2, size / 2, size / 2, size / -2, 0, 1000);
+        this.camera.position.set(center, center, 1000);
+        this.camera.lookAt(new THREE.Vector3(center, center, 0));
 
         // Add floor
-        let geometry = new THREE.BoxGeometry(45.72, 1, 45.72);
+        let geometry = new THREE.BoxGeometry(size, size, 1);
         let material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } );
         let mesh = new THREE.Mesh( geometry, material );
-        mesh.position.set(0, 0, 0);
+        mesh.position.set(center, center, 0);
         mesh.receiveShadow = true;
         this.scene.add( mesh );
 
         // Add wall
-        let wallGeo = new THREE.BoxGeometry(30, 100, 0.01);
+        let wallGeo = new THREE.BoxGeometry(30, 0.01, 1000);
         let wallMesh = new THREE.Mesh(wallGeo, material);
         wallMesh.castShadow = true;
-        wallMesh.position.set( 0, 0, 16);
+        wallMesh.position.set( 10, 10, 0);
         this.scene.add(wallMesh);
+
+        let wallGeo2 = new THREE.BoxGeometry(15, 0.01, 1000);
+        let wallMesh2 = new THREE.Mesh(wallGeo2, material);
+        wallMesh2.castShadow = true;
+        wallMesh2.position.set( 10, 40, 0);
+        wallMesh2.rotateZ(180);
+        this.scene.add(wallMesh2);
+
 
         // Add light
         let light = new THREE.SpotLight( 0xffffff, 36 );
         light.decay = 7;
         light.distance = 100;
         light.penumbra = 0.5;
-        light.position.set(0, 36, 0);
-        light.target.position.set(0, 0, 0);
+        light.position.set(center, center, 30);
+        light.target.position.set(center, center, 0);
         light.angle = Math.PI / 4;
         light.castShadow = true;
         light.shadow.mapSize.width = 1024;
