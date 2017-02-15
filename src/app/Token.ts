@@ -19,6 +19,11 @@ export class Token {
     public position: L.LatLng;
 
     /**
+     * Callback for token move event.
+     */
+    public onMove: (x: number, y: number) => void;
+
+    /**
      * Flag indicating wether to show the outline.
      */
     public showOutline: boolean;
@@ -69,8 +74,12 @@ export class Token {
                 L.latLng(sw.lat + this.size, sw.lng),
                 L.latLng(sw.lat + this.size, sw.lng + this.size),
                 L.latLng(sw.lat, sw.lng + this.size)]);
-                
+
                 this.tokenOverlay.setBounds(this.tokenPoly.getBounds());
+
+                if (this.onMove) {
+                    this.onMove(sw.lng + this.size / 2, sw.lat + this.size / 2);
+                }
             });
         }
 

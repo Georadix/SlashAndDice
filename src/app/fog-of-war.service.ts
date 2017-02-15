@@ -13,6 +13,9 @@ export class FogOfWarService {
     private canvasWidth: number;
     private canvasHeight: number;
     private outCanvas: HTMLCanvasElement;
+    private wallMaterial: THREE.MeshPhongMaterial;
+    private mapSize = 45.72;
+    private light: THREE.SpotLight;
 
     /**
      * Gets the Threejs renderer.
@@ -58,6 +61,12 @@ export class FogOfWarService {
 
     }
 
+    public moveLight(x: number, y: number): void {
+        this.light.position.set(x, y, 30);
+        this.light.target.position.set(this.light.position.x, this.light.position.y, 0);
+        this.render();
+    }
+
     /**
      * Sets the viewport size and offset.
      */
@@ -95,42 +104,22 @@ export class FogOfWarService {
         this.camera.position.set(center, center, 1000);
         this.camera.lookAt(new THREE.Vector3(center, center, 0));
 
+        this.wallMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            shading: THREE.SmoothShading
+        });
+
         // Add floor
-        let geometry = new THREE.BoxGeometry(size, size, 1);
-        let material = new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } );
-        let mesh = new THREE.Mesh( geometry, material );
-        mesh.position.set(center, center, 0);
-        mesh.receiveShadow = true;
-        this.scene.add( mesh );
+        this.addFloor();
 
         // Add wall
-        let wallGeo = new THREE.BoxGeometry(30, 0.01, 1000);
-        let wallMesh = new THREE.Mesh(wallGeo, material);
-        wallMesh.castShadow = true;
-        wallMesh.position.set( 10, 10, 0);
-        this.scene.add(wallMesh);
+        this.addWalls();
 
-        let wallGeo2 = new THREE.BoxGeometry(15, 0.01, 1000);
-        let wallMesh2 = new THREE.Mesh(wallGeo2, material);
-        wallMesh2.castShadow = true;
-        wallMesh2.position.set( 10, 40, 0);
-        wallMesh2.rotateZ(180);
-        this.scene.add(wallMesh2);
 
 
         // Add light
-        let light = new THREE.SpotLight( 0xffffff, 36 );
-        light.decay = 7;
-        light.distance = 100;
-        light.penumbra = 0.5;
-        light.position.set(center, center, 30);
-        light.target.position.set(center, center, 0);
-        light.angle = Math.PI / 4;
-        light.castShadow = true;
-        light.shadow.mapSize.width = 1024;
-        light.shadow.mapSize.height = 1024;
-        this.scene.add( light );
-        this.scene.add(light.target);
+        this.addLight();
+
         this.scene.background = new THREE.Color(0xffffff);
         this.renderer = new THREE.WebGLRenderer({
             alpha: true
@@ -141,6 +130,7 @@ export class FogOfWarService {
         this.renderer.gammaInput = true;
         this.renderer.gammaOutput = true;
         this.renderer.setSize( 300, 300 );
+        this.moveLight(0, 0);
         this.render();
     }
 
@@ -150,6 +140,41 @@ export class FogOfWarService {
         this.addChromaKey();
 
 
+    }
+
+    private addFloor(): void {
+        let geometry = new THREE.BoxGeometry(this.mapSize, this.mapSize, 1);
+        let mesh = new THREE.Mesh( geometry, this.wallMaterial );
+        mesh.position.set(this.mapSize / 2, this.mapSize / 2, 0);
+        mesh.receiveShadow = true;
+        this.scene.add( mesh );
+    }
+
+    private addLight(): void {
+        this.light = new THREE.SpotLight( 0xffffff, 36 );
+        this.light.decay = 7;
+        this.light.distance = 100;
+        this.light.penumbra = 0.5;
+        this.light.angle = Math.PI / 4;
+        this.light.castShadow = true;
+        this.light.shadowBias = 0.001;
+        this.light.shadow.mapSize.width = 2048;
+        this.light.shadow.mapSize.height = 2048;
+        this.scene.add( this.light );
+        this.scene.add( this.light.target);
+    }
+
+    private addWalls(): void {
+        let wallGeo = new THREE.BoxGeometry(4.572, 4.572, 1000, 0, 0, 0);
+        let wallMesh = new THREE.Mesh(wallGeo, this.wallMaterial);
+        wallMesh.castShadow = true;
+        wallMesh.position.set( 6.858, 16.002, 0);
+        this.scene.add(wallMesh);
+
+        let wallMesh2 = new THREE.Mesh(wallGeo, this.wallMaterial);
+        wallMesh2.castShadow = true;
+        wallMesh2.position.set( 6.858, 23.622, 0);
+        this.scene.add(wallMesh2);
     }
 
     private addChromaKey(): void {

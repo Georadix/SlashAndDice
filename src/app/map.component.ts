@@ -49,9 +49,7 @@ export class MapComponent implements OnInit{
             zoomAnimation: false
         });
 
-        this.map.whenReady(() => {
-            this.fogOfWarService.setMap(this.map);
-        });
+
 
         this.map.createPane(MapPane.background.toString());
         this.map.getPane(MapPane.background.toString()).style.zIndex = '399';
@@ -86,8 +84,22 @@ export class MapComponent implements OnInit{
 
         mapState.map.addToLayer(this.backgroundLayer);
         this.map.fitBounds(mapState.map.getBounds());
-        mapState.tokens.forEach((token) => {
-            token.addToLayer(this.tokenLayer);
+
+        this.map.whenReady(() => {
+            this.fogOfWarService.setMap(this.map);
+            this.fogOfWarService.getRenderer().then((renderer) => {
+                mapState.tokens.forEach((token) => {
+                    token.onMove = (x, y) => {
+                        this.fogOfWarService.moveLight(x, y);
+                    };
+
+                    token.addToLayer(this.tokenLayer);
+
+                    this.fogOfWarService.moveLight(token.position.lng, token.position.lat);
+                });
+            });
+
         });
+
     }
 }
