@@ -8,6 +8,8 @@ export class FogOfWarService {
     private map: L.Map;
     private scene: THREE.Scene;
     private camera: THREE.OrthographicCamera;
+    // private camera: THREE.PerspectiveCamera;
+
     private renderer: THREE.WebGLRenderer;
     private zoomLevel: number;
     private canvasWidth: number;
@@ -62,7 +64,7 @@ export class FogOfWarService {
     }
 
     public moveLight(x: number, y: number): void {
-        this.light.position.set(x, y, 30);
+        this.light.position.set(x, y, 1.524);
         this.light.target.position.set(this.light.position.x, this.light.position.y, 0);
         this.render();
     }
@@ -101,7 +103,8 @@ export class FogOfWarService {
         let center = 45.72 / 2;
         this.scene = new THREE.Scene();
         this.camera = new THREE.OrthographicCamera(size / -2, size / 2, size / 2, size / -2, 0, 1000);
-        this.camera.position.set(center, center, 1000);
+        // this.camera = new THREE.PerspectiveCamera(55, 1, 0.1, 10000);
+        this.camera.position.set(center, center, 50);
         this.camera.lookAt(new THREE.Vector3(center, center, 0));
 
         this.wallMaterial = new THREE.MeshPhongMaterial({
@@ -147,6 +150,7 @@ export class FogOfWarService {
         let mesh = new THREE.Mesh( geometry, this.wallMaterial );
         mesh.position.set(this.mapSize / 2, this.mapSize / 2, 0);
         mesh.receiveShadow = true;
+        mesh.castShadow = true;
         this.scene.add( mesh );
     }
 
@@ -155,9 +159,9 @@ export class FogOfWarService {
         this.light.decay = 7;
         this.light.distance = 100;
         this.light.penumbra = 0.5;
-        this.light.angle = Math.PI / 4;
+        this.light.angle = Math.PI / 2;
         this.light.castShadow = true;
-        this.light.shadowBias = 0.001;
+        this.light.shadow.bias = 0.001;
         this.light.shadow.mapSize.width = 2048;
         this.light.shadow.mapSize.height = 2048;
         this.scene.add( this.light );
@@ -165,16 +169,21 @@ export class FogOfWarService {
     }
 
     private addWalls(): void {
-        let wallGeo = new THREE.BoxGeometry(4.572, 4.572, 1000, 0, 0, 0);
-        let wallMesh = new THREE.Mesh(wallGeo, this.wallMaterial);
-        wallMesh.castShadow = true;
-        wallMesh.position.set( 6.858, 16.002, 0);
-        this.scene.add(wallMesh);
+        let loader = new THREE.ColladaLoader();
+        loader.load('assets/greenest-keep.dae', ( data: any ) => {
+            let model: THREE.Object3D = data.scene;
 
-        let wallMesh2 = new THREE.Mesh(wallGeo, this.wallMaterial);
-        wallMesh2.castShadow = true;
-        wallMesh2.position.set( 6.858, 23.622, 0);
-        this.scene.add(wallMesh2);
+            model.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            model.position.set(0, 0, -1.1);
+            this.scene.add( model );
+            this.render();
+        });
     }
 
     private addChromaKey(): void {
