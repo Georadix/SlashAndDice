@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CreatureSize } from './CreatureSize';
 
 /**
  * Fog of War service.
@@ -64,7 +65,7 @@ export class FogOfWarService {
     }
 
     public moveLight(x: number, y: number): void {
-        this.light.position.set(x, y, 1.524);
+        this.light.position.set(x, y, CreatureSize.Medium * 4);
         this.light.target.position.set(this.light.position.x, this.light.position.y, 0);
         this.render();
     }
@@ -108,8 +109,7 @@ export class FogOfWarService {
         this.camera.lookAt(new THREE.Vector3(center, center, 0));
 
         this.wallMaterial = new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            shading: THREE.SmoothShading
+            color: 0xffffff
         });
 
         // Add floor
@@ -117,8 +117,6 @@ export class FogOfWarService {
 
         // Add wall
         this.addWalls();
-
-
 
         // Add light
         this.addLight();
@@ -156,14 +154,12 @@ export class FogOfWarService {
 
     private addLight(): void {
         this.light = new THREE.SpotLight( 0xffffff, 36 );
+        this.light.angle = Math.PI / 2.5;
+        this.light.castShadow = true;
         this.light.decay = 7;
         this.light.distance = 100;
         this.light.penumbra = 0.5;
-        this.light.angle = Math.PI / 2;
-        this.light.castShadow = true;
-        this.light.shadow.bias = 0.001;
-        this.light.shadow.mapSize.width = 2048;
-        this.light.shadow.mapSize.height = 2048;
+
         this.scene.add( this.light );
         this.scene.add( this.light.target);
     }
@@ -180,7 +176,8 @@ export class FogOfWarService {
                 }
             });
 
-            model.position.set(0, 0, -1.1);
+            model.position.set(0, 0, -6);
+            model.scale.setZ(6);
             this.scene.add( model );
             this.render();
         });
