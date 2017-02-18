@@ -18,7 +18,8 @@ export class FogOfWarService {
     private outCanvas: HTMLCanvasElement;
     private wallMaterial: THREE.MeshPhongMaterial;
     private mapSize = 45.72;
-    private light: THREE.SpotLight;
+    private lights: THREE.SpotLight[] = [];
+    private raycaster: THREE.Raycaster;
 
     /**
      * Gets the Threejs renderer.
@@ -65,8 +66,34 @@ export class FogOfWarService {
     }
 
     public moveLight(x: number, y: number): void {
-        this.light.position.set(x, y, CreatureSize.Medium * 4);
-        this.light.target.position.set(this.light.position.x, this.light.position.y, 0);
+        this.raycaster.set(new THREE.Vector3(x, y, 1000), new THREE.Vector3(0, 0, -1));
+        let intersects = this.raycaster.intersectObjects(this.scene.children, true);
+
+        let z = 1000 - intersects[0].distance + CreatureSize.Medium;
+        let index = 0;
+        this.lights.forEach((light) => {
+            light.position.set(x, y, z);
+
+            switch ( index ) {
+                case 0:
+                    light.target.position.set(x + 100, y, z);
+                    break;
+                case 1:
+                    light.target.position.set(x, y - 100, z);
+                    break;
+                case 2:
+                    light.target.position.set(x - 100, y, z);
+                    break;
+                case 3:
+                    light.target.position.set(x, y + 100, z);
+                    break;
+                case 4:
+                    light.target.position.set(x, y, 0);
+            }
+
+            index++;
+        });
+
         this.render();
     }
 
@@ -112,6 +139,8 @@ export class FogOfWarService {
             color: 0xffffff
         });
 
+        this.raycaster = new THREE.Raycaster();
+
         // Add floor
         this.addFloor();
 
@@ -153,15 +182,19 @@ export class FogOfWarService {
     }
 
     private addLight(): void {
-        this.light = new THREE.SpotLight( 0xffffff, 36 );
-        this.light.angle = Math.PI / 2.5;
-        this.light.castShadow = true;
-        this.light.decay = 7;
-        this.light.distance = 100;
-        this.light.penumbra = 0.5;
 
-        this.scene.add( this.light );
-        this.scene.add( this.light.target);
+        for (let i = 0; i < 5; i++){
+            let light = new THREE.SpotLight( 0xffffff, 36 );
+            light.angle = Math.PI / 3;
+            light.castShadow = true;
+            light.decay = 7;
+            light.distance = 100;
+            light.penumbra = 0.5;
+            this.lights.push(light);
+            this.scene.add( light );
+            this.scene.add( light.target);
+        }
+
     }
 
     private addWalls(): void {
@@ -176,8 +209,8 @@ export class FogOfWarService {
                 }
             });
 
-            model.position.set(0, 0, -6);
-            model.scale.setZ(6);
+            model.position.set(0, 0, -1);
+
             this.scene.add( model );
             this.render();
         });
