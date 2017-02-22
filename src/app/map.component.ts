@@ -58,11 +58,12 @@ export class MapComponent implements OnInit{
         });
 
         this.map.on((<any>L).Draw.Event.CREATED, (e: any) => {
+            e.layer.editing.enable();
             drawnItems.addLayer(e.layer);
             this.fogOfWarService.updateWalls(drawnItems);
         });
 
-        this.map.on((<any>L).Draw.Event.EDITED, () => {
+        this.map.on((<any>L).Draw.Event.EDITVERTEX, () => {
             this.fogOfWarService.updateWalls(drawnItems);
         });
 
