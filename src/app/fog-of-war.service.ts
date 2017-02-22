@@ -20,6 +20,7 @@ export class FogOfWarService {
     private mapSize = 45.72;
     private lights: THREE.SpotLight[] = [];
     private raycaster: THREE.Raycaster;
+    private walls: THREE.Mesh[] = [];
 
     /**
      * Gets the Threejs renderer.
@@ -63,6 +64,21 @@ export class FogOfWarService {
             this.setSize();
         });
 
+    }
+
+    public updateWalls(features: L.FeatureGroup): void {
+        this.walls.forEach((wall) => {
+            this.scene.remove(wall);
+        });
+        this.walls = [];
+        features.eachLayer((layer) => {
+            this.addWalls((<any>layer).getLatLngs());
+        });
+        this.walls.forEach((wall) => {
+            this.scene.add(wall);
+        });
+
+        this.render();
     }
 
     public moveLight(x: number, y: number): void {
@@ -145,7 +161,7 @@ export class FogOfWarService {
         this.addFloor();
 
         // Add wall
-        this.addWalls();
+        // this.addWalls();
 
         // Add light
         this.addLight();
@@ -197,23 +213,28 @@ export class FogOfWarService {
 
     }
 
-    private addWalls(): void {
-        let loader = new THREE.ColladaLoader();
-        loader.load('assets/greenest-keep.dae', ( data: any ) => {
-            let model: THREE.Object3D = data.scene;
+    private addWalls(coordinates: L.LatLng[]): void {
+        for (let i = 0; i < coordinates.length - 1; i++) {
+            this.addWall(coordinates[i], coordinates[i + 1]);
+        }
+    }
+    private addWall(start: L.LatLng, end: L.LatLng): void {
+        let length = this.map.distance(start, end);
+        let rad = Math.atan((start.lat - end.lat) / (start.lng - end.lng));
+        let geometry = new THREE.BoxGeometry(length, 0.1, 100);
+        let mesh = new THREE.Mesh( geometry, this.wallMaterial );
 
-            model.traverse((child) => {
-                if (child instanceof THREE.Mesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
-
-            model.position.set(0, 0, -1);
-
-            this.scene.add( model );
-            this.render();
-        });
+        let centerX = (start.lng + end.lng) / 2;
+        let centerY = (start.lat + end.lat) / 2;
+        mesh.position.set(
+            centerX,
+            centerY,
+            50
+        );
+        mesh.rotateZ(rad);
+        mesh.receiveShadow = true;
+        mesh.castShadow = true;
+        this.walls.push(mesh);
     }
 
     private addChromaKey(): void {

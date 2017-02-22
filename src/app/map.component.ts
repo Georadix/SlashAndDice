@@ -49,7 +49,24 @@ export class MapComponent implements OnInit{
             zoomAnimation: false
         });
 
+        let drawnItems = L.featureGroup();
+        this.map.addLayer(drawnItems);
+        let drawControl = new (<any>L).Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            }
+        });
 
+        this.map.on((<any>L).Draw.Event.CREATED, (e: any) => {
+            drawnItems.addLayer(e.layer);
+            this.fogOfWarService.updateWalls(drawnItems);
+        });
+
+        this.map.on((<any>L).Draw.Event.EDITED, () => {
+            this.fogOfWarService.updateWalls(drawnItems);
+        });
+
+        this.map.addControl(drawControl);
 
         this.map.createPane(MapPane.background.toString());
         this.map.getPane(MapPane.background.toString()).style.zIndex = '399';
@@ -64,7 +81,12 @@ export class MapComponent implements OnInit{
         this.map.addLayer(this.tokenLayer);
         this.tokenLayer.setZIndex(10);
 
-        L.control.layers({'Map': this.backgroundLayer}, {'Tokens': this.tokenLayer}). addTo(this.map);
+        L.control.layers(
+            {'Map': this.backgroundLayer},
+            {
+                'Tokens': this.tokenLayer,
+                'Dynamic Vision': drawnItems
+            }). addTo(this.map);
 
         let mapState = this.gameStateService.getMap();
 
