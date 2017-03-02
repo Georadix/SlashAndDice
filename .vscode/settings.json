@@ -1,6 +1,8 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "editor.fontSize": 20,
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": true,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,

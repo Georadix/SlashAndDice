@@ -3,22 +3,21 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { RenderService } from './services/render.service';
 import { AppComponent } from './app.component';
-import { MapComponent } from './map.component';
-import { FogOfWarComponent } from './fog-of-war.component';
+import { MapComponent } from './map/map.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MapComponent,
-    FogOfWarComponent
-  ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        MapComponent
+    ],
+    imports: [
+        BrowserModule,
+        FormsModule,
+        HttpModule
+    ],
+    providers: [RenderService],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
