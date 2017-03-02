@@ -7,6 +7,7 @@ import { MapPane } from './MapPane';
 export class Token {
     private tokenPoly: L.Polygon;
     private tokenOverlay: L.ImageOverlay;
+    private snap = false;
 
     /**
      * Image URL of the token.
@@ -96,9 +97,13 @@ export class Token {
         layer.addLayer(this.tokenOverlay);
     }
 
-    private snapToGrid(latLng: L.LatLng): L.LatLng{
+    private snapToGrid(latLng: L.LatLng): L.LatLng {
+        if (this.snap) {
         let lat = Math.round(latLng.lat / 1.524) * 1.524;
         let lng = Math.round(latLng.lng / 1.524) * 1.524;
         return L.latLng(lat, lng);
+        } else {
+            return latLng;
+        }
     }
 }

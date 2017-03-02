@@ -200,12 +200,14 @@ export class FogOfWarService {
     private addLight(): void {
 
         for (let i = 0; i < 5; i++){
-            let light = new THREE.SpotLight( 0xffffff, 36 );
+            let light = new THREE.SpotLight( 0xffffff, 15 );
             light.angle = Math.PI / 3;
             light.castShadow = true;
-            light.decay = 7;
-            light.distance = 100;
-            light.penumbra = 0.5;
+            light.decay = 1;
+            light.distance = 30;
+            light.penumbra = 1;
+            light.shadow.bias = 0.0001;
+            light.shadow.mapSize.set(2048, 2048);
             this.lights.push(light);
             this.scene.add( light );
             this.scene.add( light.target);
@@ -221,7 +223,7 @@ export class FogOfWarService {
     private addWall(start: L.LatLng, end: L.LatLng): void {
         let length = this.map.distance(start, end);
         let rad = Math.atan((start.lat - end.lat) / (start.lng - end.lng));
-        let geometry = new THREE.BoxGeometry(length, 0.1, 100);
+        let geometry = new THREE.BoxGeometry(length, 0.1, 5);
         let mesh = new THREE.Mesh( geometry, this.wallMaterial );
 
         let centerX = (start.lng + end.lng) / 2;
@@ -229,7 +231,7 @@ export class FogOfWarService {
         mesh.position.set(
             centerX,
             centerY,
-            50
+            2.5
         );
         mesh.rotateZ(rad);
         mesh.receiveShadow = true;
@@ -247,12 +249,8 @@ export class FogOfWarService {
 
         for (let i = 0; i < l; i++) {
             let r = imgData.data[i * 4 + 0];
-            let g = imgData.data[i * 4 + 1];
-            let b = imgData.data[i * 4 + 2];
-
             imgData.data[i * 4 + 3] = 255 - r;
         }
-
 
         ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         ctx.putImageData(imgData, 0, 0);
