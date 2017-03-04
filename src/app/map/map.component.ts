@@ -31,6 +31,7 @@ export class MapComponent implements OnInit {
 
         let token = new Token('assets/token.png', 5, 75, 75);
         this.renderService.addToken(token);
+        // this.renderService.setViewPort();
     }
 
 }
