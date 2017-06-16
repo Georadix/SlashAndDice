@@ -16,5 +16,8 @@
       "es2016",
       "dom"
     ]
-  }
+  },
+  "files": [
+    "node_modules/phaser-ce/typescript/phaser.d.ts"
+  ]
 }
