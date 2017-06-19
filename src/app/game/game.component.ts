@@ -1,6 +1,7 @@
 
 
 import { Component, OnInit } from '@angular/core';
+import { Player } from './Player';
 
 @Component({
     selector: 'app-game',
@@ -9,14 +10,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GameComponent implements OnInit {
     private game: Phaser.Game;
-    private inputs: Phaser.CursorKeys;
-    private player: Phaser.Sprite;
+    private player: Player;
     private mapSize: Phaser.Point;
     private mapScale = 10;
     constructor() { }
 
     ngOnInit() {
-        
         this.game = new Phaser.Game('100', '100', Phaser.AUTO, 'game-canvas',
             { preload: this.preload, create: this.create, update: this.update });
     }
@@ -47,11 +46,7 @@ export class GameComponent implements OnInit {
         mapSprite.width = 150;
         mapSprite.height = 150;
 
-        this.player = this.game.add.sprite(this.mapSize.x / 2, this.mapSize.y / 2, 'token');
-        this.player.width = 5;
-        this.player.height = 5;
-        this.player.inputEnabled = true;
-        this.player.input.enableDrag(true);
+        this.player = new Player(this.game, new Phaser.Point(mapSprite.width, mapSprite.height));
 
         var dragging = false;
         var dragStart;
@@ -77,27 +72,9 @@ export class GameComponent implements OnInit {
             dragging = false;
             dragStart = undefined;
         });
-
-        this.inputs = this.game.input.keyboard.createCursorKeys();
-        this.inputs.down = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
-        this.inputs.left = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
-        this.inputs.right = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
-        this.inputs.up = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-
     }
     private update(): void {
-
-        if (this.inputs.up.isDown) {
-            this.game.camera.y -= 4;
-        } else if (this.inputs.down.isDown) {
-            this.game.camera.y += 4;
-        }
-
-        if (this.inputs.left.isDown) {
-            this.game.camera.x -= 4;
-        } else if (this.inputs.right.isDown) {
-            this.game.camera.x += 4;
-        }
+        this.player.update();
     }
 
 }
